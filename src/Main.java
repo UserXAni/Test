@@ -5,30 +5,35 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
+import android.annotation.SuppressLint;
 
 public class Main {
 
 	static Application app() {
 		try {
+			@SuppressLint("")
 			Class<?> clazz = Class.forName("android.app.ActivityThread");
 			Method currentApplication = clazz.getMethod("currentApplication");
 			if (!currentApplication.isAccessible()) {
 				currentApplication.setAccessible(true);
 			}
 			Object instance = currentApplication.invoke(null);
-			if (instance instanceof Application) {
-				System.out.println("currentApplication: " + (instance instanceof Application));
-				return (Application) instance;
-			}
+			boolean ins = (instance instanceof Application);
+			System.out.println("currentApplication: " + ins);
+			return (Application) instance;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
-		throw new RuntimeException();
 	}
 
 	public static void main(String[] args) {
 		new Handler(Looper.getMainLooper()).post(() -> {
-			Toast.makeText(app().getApplicationContext(), "Hallo", 1).show();
+			try {
+				Context c = app().getApplicationContext();
+				Toast.makeText(c, "Hallo", 1).show();
+			} catch (Throwable e) {
+			}
 		});
 	}
 }
